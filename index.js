@@ -1,7 +1,10 @@
+// Import database connection and inquirer
 const db = require('./db/connection');
 const inquirer = require('inquirer');
 
+// initialization function to kick off the command line application
 const init = () => {
+    // storing message and choices as variables here
     let message = 'What would you like to do?';
     let choices = [
         'View all departments', 
@@ -36,10 +39,10 @@ const init = () => {
                 init();
                 break;
             case "Add a department":
-                console.log('Elected to add a department');
+                addDepartment();
                 break;
             case "Add a role":
-                console.log('Elected to add a role');
+                addRole();
                 break;
             case "Add an employee":
                 console.log('Elected to add an employee');
@@ -54,7 +57,7 @@ const init = () => {
     });
 };
 
-
+// sql query to show the departments table from the database
 const viewAllDepartments = () => {
     db.query(
         `SELECT * FROM departments;`,
@@ -66,6 +69,7 @@ const viewAllDepartments = () => {
     )
 };
 
+// sql query to show the roles table from the database
 const viewAllRoles = () => {
     db.query(
         `SELECT * FROM roles;`,
@@ -77,6 +81,7 @@ const viewAllRoles = () => {
     )
 };
 
+// sql query to show the employees table from the database
 const viewAllEmployees = () => {
     db.query(
         `SELECT * FROM employees;`,
@@ -87,5 +92,82 @@ const viewAllEmployees = () => {
         }
     )
 };
+
+// function to add a new department to the departments table
+function addDepartment () {
+    inquirer.prompt(
+        {
+            type: 'input',
+            name: 'addDepartment',
+            message: 'Enter the name of the department you would like to add (30 char limit)',
+            validate: input => {
+                if(input) {
+                    return true;
+                } else {
+                    console.log('Please enter a valid department name.')
+                    return false;
+                }
+            }
+        }
+    ).then((data) => {
+        sql = `INSERT INTO departments VALUES (DEFAULT, '${data.addDepartment}');`
+        db.query(sql, (err, res) => {
+            if(err) console.log(err)
+        });
+        console.log(`${data.addDepartment} department added to the database.`)
+        init();
+    })
+}
+
+// function to add a new role to the roles table
+function addRole () {
+    let departments = ['None'];
+    db.query(`SELECT department_name FROM departments;`, (err, res) => {
+        if(err) console.log(err);
+        res.forEach(element => departments.push(element.department_name));
+    })
+    return inquirer.prompt([
+        {
+            type: 'input',
+            name: 'jobTitle',
+            message: 'Enter the name of the Role you would like to add (30 char limit)',
+            validate: input => {
+                if(input) {
+                    return true;
+                } else {
+                    console.log('Please enter a valid role name.')
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'number',
+            name: 'salary',
+            message: 'Enter an annual salary for the role (Numbers only!)',
+            validate: input => {
+                if(input) {
+                    return true;
+                } 
+                else {
+                    console.log('Please enter a valid number');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'list',
+            name: 'department',
+            message: 'Select which department this role belongs to.',
+            choices: departments
+        }
+    ]).then((data) => {
+        sql = `INSERT INTO roles VALUES (DEFAULT, '${data.jobTitle}', ${data.salary}, '${data.department}');`
+        db.query(sql, (err, res) => {
+            if(err) console.log(err)
+        });
+        console.log(`${data.jobTitle} role added to the database.`)
+        init();
+    })
+}
 
 init();
