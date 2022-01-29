@@ -1,4 +1,3 @@
-const { listen } = require('express/lib/application');
 const inquirer = require('inquirer');
 
 const initPrompt = () => {
@@ -12,4 +11,4 @@ const initPrompt = () => {
     ]);
 };
 
-initPrompt();
+module.exports = initPrompt;
