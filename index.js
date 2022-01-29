@@ -1,6 +1,12 @@
+const db = require('./db/connection');
 const initPrompt = require('./utils/prompts');
 
-initPrompt()
-.then(promptChoice => {
+db.connect(err => {
+    if(err) throw err;
+    console.log('Database connected')
+    initPrompt()
+    .then(promptChoice => {
     console.log(promptChoice)
-});
+    });
+})
+
