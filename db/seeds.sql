@@ -12,7 +12,7 @@ VALUES
     (3, 'Chief Finance Officer', 500000, 'Finance'),
     (4, 'Chief People Officer', 250000, 'Human Resources');
 
-INSERT INTO employees (employee_id, first_name, last_name, job_title, department_name, salary, managers)
+INSERT INTO employees (employee_id, first_name, last_name, job_title, department_name, salary, manager)
 VALUES
     (1, 'Alex', 'Marten', 'Chief Technology Officer', 'Technology', 500000, 'None'),
     (2, 'Jamie', 'Sunds', 'Chief Development Officer', 'Development', 300000, 'Alex'),
