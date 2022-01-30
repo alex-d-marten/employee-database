@@ -5,16 +5,20 @@ VALUES
     (DEFAULT, 'Finance'),
     (DEFAULT, 'Human Resources');
 
-INSERT INTO roles (role_id, job_title, salary, department_name)
+INSERT INTO roles (role_id, job_title, salary, department_id)
 VALUES
-    (1, 'Chief Technology Officer', 500000, 'Technology'),
-    (2, 'Chief Development Officer', 300000, 'Development'),
-    (3, 'Chief Finance Officer', 500000, 'Finance'),
-    (4, 'Chief People Officer', 250000, 'Human Resources');
+    (DEFAULT, 'Chief Technology Officer', 500000, 1),
+    (DEFAULT, 'Chief Development Officer', 300000, 2),
+    (DEFAULT, 'Chief Finance Officer', 500000, 3),
+    (DEFAULT, 'Chief People Officer', 250000, 4);
 
-INSERT INTO employees (employee_id, first_name, last_name, job_title, department_name, salary, manager)
+INSERT INTO employees (employee_id, first_name, last_name, role_id, manager_id)
 VALUES
-    (1, 'Alex', 'Marten', 'Chief Technology Officer', 'Technology', 500000, 'None'),
-    (2, 'Jamie', 'Sunds', 'Chief Development Officer', 'Development', 300000, 'Alex'),
-    (3, 'Ena', 'Roberts', 'Chief Finance Officer', 'Finance', 500000, 'Alex'),
-    (4, 'Judith', 'Edwards', 'Chief People Officer', 'Human Resources', 250000, 'Alex');
+    (DEFAULT, 'Alex', 'Marten', 1, null),
+    (DEFAULT, 'Jamie', 'Sunds', 2, 1),
+    (DEFAULT, 'Ena', 'Roberts', 3, 1),
+    (DEFAULT, 'Judith', 'Edwards', 4, 1);
+
+
+
+    -- INSERT INTO employees (employee_id, first_name, last_name, job_title, department_name, salary, manager)

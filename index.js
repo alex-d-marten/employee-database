@@ -30,7 +30,7 @@ function runQueries() {
     })
     
     // query to retrieve role info to be used to match salaries and departments
-    db.query(`SELECT job_title, department_name, salary FROM roles`, (err, res) => {
+    db.query(`SELECT job_title, role_id FROM roles`, (err, res) => {
         if(err) console.log(err);
         roleInfo = res;
     })
@@ -40,7 +40,6 @@ function runQueries() {
         if(err) console.log(err);
         res.forEach(element => employeeArr.push(element.first_name + ' ' + element.last_name));
         employeeIds = res;
-        console.log(employeeIds)
     })
     
 }
@@ -117,7 +116,9 @@ const viewAllDepartments = () => {
 // sql query to show the roles table from the database
 const viewAllRoles = () => {
     db.query(
-        `SELECT * FROM roles;`,
+        `SELECT roles.job_title, roles.role_id, departments.department_name, roles.salary 
+         FROM roles 
+         LEFT JOIN departments ON roles.department_id = departments.department_id;`,
         (err, result) => {
             if(err) console.log(err)
             console.log('\n')
@@ -129,7 +130,10 @@ const viewAllRoles = () => {
 // sql query to show the employees table from the database
 const viewAllEmployees = () => {
     db.query(
-        `SELECT * FROM employees;`,
+        `SELECT employees.employee_id, employees.first_name, employees.last_name, roles.job_title, departments.department_name, roles.salary, m.first_name AS manager_first_name, m.last_name AS manager_last_name  FROM employees 
+        LEFT JOIN roles ON employees.role_id = roles.role_id 
+        LEFT JOIN departments on roles.department_id = departments.department_id 
+        LEFT JOIN employees m ON employees.manager_id = m.employee_id;`,
         (err, result) => {
             if(err) console.log(err)
             console.log('\n')
@@ -201,12 +205,23 @@ function addRole () {
             choices: departments
         }
     ]).then((data) => {
-        sql = `INSERT INTO roles VALUES (DEFAULT, '${data.jobTitle}', ${data.salary}, '${data.department}');`
-        db.query(sql, (err, res) => {
+        let departmentId = null;
+        db.query(`SELECT * FROM departments`, (err, res) => {
             if(err) console.log(err)
-        });
-        console.log(`${data.jobTitle} role added to the database.`)
-        init();
+            res.forEach(element => {
+                if(element.department_name === data.department) {
+                    departmentId = element.department_id
+                    return;
+                }
+            })
+            sql = `INSERT INTO roles VALUES (DEFAULT, '${data.jobTitle}', ${data.salary}, '${departmentId}');`
+            console.log(sql)
+            db.query(sql, (err, res) => {
+                if(err) console.log(err)
+            });
+            console.log(`${data.jobTitle} role added to the database.`)
+            init();
+        })
     })
 }
 
@@ -253,6 +268,7 @@ function addEmployee () {
             choices: employeeArr
         }
     ]).then((data) => {
+        console.log(roleInfo)
         roleInfo.forEach(element => {
             switch (data.role) {
                 case element.job_title:
@@ -261,7 +277,7 @@ function addEmployee () {
                     break;
             }
         })
-        sql = `INSERT INTO employees VALUES (DEFAULT, '${data.firstName}', '${data.lastName}', '${data.role}', '${departmentName}', ${salaryAmount}, '${data.manager}');`
+        sql = `INSERT INTO employees VALUES (DEFAULT, '${data.firstName}', '${data.lastName}', '${data.role}', '${data.manager}');`
         db.query(sql, (err, res) => {
             if(err) console.log(err)
         });
@@ -319,5 +335,3 @@ function updateEmployee () {
 }
 
 init();
-// updateEmployee();
-// addEmployee()
