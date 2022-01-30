@@ -2,8 +2,53 @@
 const db = require('./db/connection');
 const inquirer = require('inquirer');
 
+// declare variables
+let departments = ['None'];
+let employeeArr = ['None'];
+let employeeIds = [];
+let roles = [];
+let roleInfo = [];
+let departmentName;
+let salaryAmount; 
+
+// run needed prep queries
+function runQueries() {
+    departments = ['None'];
+    roles = [];
+    employeeArr = ['None'];
+    employeeIds = [];
+
+    db.query(`SELECT department_name FROM departments;`, (err, res) => {
+        if(err) console.log(err);
+        res.forEach(element => departments.push(element.department_name));
+    })
+    
+    // query to retrieve roles 
+    db.query(`SELECT job_title FROM roles;`, (err, res) => {
+        if(err) console.log(err);
+        res.forEach(element => roles.push(element.job_title));
+    })
+    
+    // query to retrieve role info to be used to match salaries and departments
+    db.query(`SELECT job_title, department_name, salary FROM roles`, (err, res) => {
+        if(err) console.log(err);
+        roleInfo = res;
+    })
+    
+    // query to retrieve employees
+    db.query(`SELECT employee_id, first_name, last_name FROM employees;`, (err, res) => {
+        if(err) console.log(err);
+        res.forEach(element => employeeArr.push(element.first_name + ' ' + element.last_name));
+        employeeIds = res;
+        console.log(employeeIds)
+    })
+    
+}
+
 // initialization function to kick off the command line application
 const init = () => {
+    runQueries();
+
     // storing message and choices as variables here
     let message = 'What would you like to do?';
     let choices = [
@@ -48,7 +93,7 @@ const init = () => {
                 addEmployee();
                 break;
             case "Update an employee role":
-                console.log('Elected to updat an employee');
+                updateEmployee();
                 break;
             case "Exit":
                 console.log("Application closing, thank you for using the Employee Database.");
@@ -121,11 +166,6 @@ function addDepartment () {
 
 // function to add a new role to the roles table
 function addRole () {
-    let departments = ['None'];
-    db.query(`SELECT department_name FROM departments;`, (err, res) => {
-        if(err) console.log(err);
-        res.forEach(element => departments.push(element.department_name));
-    })
     return inquirer.prompt([
         {
             type: 'input',
@@ -172,29 +212,6 @@ function addRole () {
 
 // function to add a new employee to the employees table
 function addEmployee () {
-    let roles = [];
-    let managers = ['None'];
-    let roleInfo = [];
-    let departmentName;
-    let salaryAmount;
-
-    // query to retrieve roles 
-    db.query(`SELECT job_title FROM roles;`, (err, res) => {
-        if(err) console.log(err);
-        res.forEach(element => roles.push(element.job_title));
-    })
-    // query to retrieve employees
-    db.query(`SELECT first_name, last_name FROM employees;`, (err, res) => {
-        if(err) console.log(err);
-        res.forEach(element => managers.push(element.first_name + ' ' + element.last_name));
-    })
-
-    // query to retrieve role info to be used to match salaries and departments
-    db.query(`SELECT job_title, department_name, salary FROM roles`, (err, res) => {
-        if(err) console.log(err);
-        roleInfo = res;
-    })
-
     return inquirer.prompt([
         {
             type: 'input',
@@ -233,7 +250,7 @@ function addEmployee () {
             type: 'list',
             name: 'manager',
             message: 'Select who will be managing this employee.',
-            choices: managers
+            choices: employeeArr
         }
     ]).then((data) => {
         roleInfo.forEach(element => {
@@ -241,6 +258,7 @@ function addEmployee () {
                 case element.job_title:
                     departmentName = element.department_name;
                     salaryAmount = element.salary;
+                    break;
             }
         })
         sql = `INSERT INTO employees VALUES (DEFAULT, '${data.firstName}', '${data.lastName}', '${data.role}', '${departmentName}', ${salaryAmount}, '${data.manager}');`
@@ -252,4 +270,48 @@ function addEmployee () {
     })
 }
 
+function updateEmployee () {
+    return inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employeeUpdate',
+            message: 'Which employee would you like to update?',
+            choices: employeeArr
+        },
+        {
+            type: 'list',
+            name: 'newRole',
+            message: 'Which role should the employee now have?',
+            choices: roles
+        },
+    ])
+    .then(data => {
+        // console.log(data)
+        roleInfo.forEach(element => {
+            switch (data.newRole) {
+                case element.job_title:
+                    departmentName = element.department_name;
+                    salaryAmount = element.salary;
+                    break;
+            }
+        })
+
+        employeeIds.forEach(element => {
+            // console.log(data.employeeUpdate)
+            let caseString = element.first_name + ' ' + element.last_name;
+            switch (data.employeeUpdate) {
+                case (caseString):
+                    console.log(caseString);
+                    break;
+            }
+        })
+        // console.log(employeeIds)
+        sql = `UPDATE employees 
+               SET job_title = '${data.newRole}', department_name = '${departmentName}', salary = ${salaryAmount}
+               WHERE `
+    })
+}
+
 init();
+// updateEmployee();
+// addEmployee()
