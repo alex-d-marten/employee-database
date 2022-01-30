@@ -8,8 +8,8 @@ let employeeArr = ['None'];
 let employeeIds = [];
 let roles = [];
 let roleInfo = [];
-let departmentName;
-let salaryAmount; 
+let roleId; 
+let managerId = null;
 
 // run needed prep queries
 function runQueries() {
@@ -36,11 +36,21 @@ function runQueries() {
     })
     
     // query to retrieve employees
-    db.query(`SELECT employee_id, first_name, last_name FROM employees;`, (err, res) => {
+    db.query(`SELECT * FROM employees;`, (err, res) => {
         if(err) console.log(err);
         res.forEach(element => employeeArr.push(element.first_name + ' ' + element.last_name));
         employeeIds = res;
     })
+
+    // // query to retrieve managers
+    // db.query(`SELECT * FROM employees`, (err, res) => {
+    //     if(err) console.log(err)
+    //     res.forEach(element => {
+    //         if(element.firstName) {
+    //             managers.push(element.firstName + ' ' + element.last_name)
+    //         }
+    //     })
+    // })
     
 }
 
@@ -268,16 +278,21 @@ function addEmployee () {
             choices: employeeArr
         }
     ]).then((data) => {
-        console.log(roleInfo)
         roleInfo.forEach(element => {
             switch (data.role) {
                 case element.job_title:
-                    departmentName = element.department_name;
-                    salaryAmount = element.salary;
+                    roleId = element.role_id
                     break;
             }
         })
-        sql = `INSERT INTO employees VALUES (DEFAULT, '${data.firstName}', '${data.lastName}', '${data.role}', '${data.manager}');`
+        employeeIds.forEach(element => {
+            if(element.first_name + ' ' + element.last_name === data.manager) {
+                managerId = element.employee_id;
+                return;
+            }
+        })
+        console.log(managerId)
+        sql = `INSERT INTO employees VALUES (DEFAULT, '${data.firstName}', '${data.lastName}', '${roleId}', '${managerId}');`
         db.query(sql, (err, res) => {
             if(err) console.log(err)
         });
@@ -307,8 +322,7 @@ function updateEmployee () {
         roleInfo.forEach(element => {
             switch (data.newRole) {
                 case element.job_title:
-                    departmentName = element.department_name;
-                    salaryAmount = element.salary;
+                    roleId = element.role_id
                     break;
             }
         })
@@ -321,11 +335,7 @@ function updateEmployee () {
                     break;
             }
         })
-        sql = `UPDATE employees 
-               SET job_title = '${data.newRole}', department_name = '${departmentName}', salary = ${salaryAmount}
-               WHERE employee_id = ${employeeIdUpdate}
-               `
-        console.log(sql)
+        sql = `UPDATE employees SET role_id = '${roleId}' WHERE employee_id = ${employeeIdUpdate};`
         db.query(sql, (err, res) => {
             if(err) console.log(err)
         });
