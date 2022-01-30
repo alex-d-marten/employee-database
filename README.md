@@ -10,8 +10,6 @@ This project is a command line application that allows a user to create and mana
 
 * [Installation](#installation)
 * [Usage](#usage)
-* [Contributing](#contributing)
-* [Tests](#tests)
 * [Questions](#questions)
 
 ---
@@ -25,6 +23,11 @@ To install this project first and foremotst you will need to have Node.js instal
 ## Usage
 
 To use the project simply run "node index.js" from the command line, after the installation has been done. To exit the app at any time just hit Ctrl + C. The intended use of this project is to build and emprove employee databases.
+
+---
+
+## Walkthrough Video
+[how to run the app](https://drive.google.com/file/d/15GE-lRPIHhql6_xIpdYdC-GAZ5p_TO0u/view)
 
 ---
 
