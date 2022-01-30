@@ -27,7 +27,7 @@ To use the project simply run "node index.js" from the command line, after the i
 ---
 
 ## Walkthrough Video
-[how to run the app](https://drive.google.com/file/d/15GE-lRPIHhql6_xIpdYdC-GAZ5p_TO0u/view)
+[how to run the app](https://drive.google.com/file/d/15GE-lRPIHhql6_xIpdYdC-GAZ5p_TO0u/view?usp=sharing)
 
 ---
 
