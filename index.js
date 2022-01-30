@@ -41,23 +41,11 @@ function runQueries() {
         res.forEach(element => employeeArr.push(element.first_name + ' ' + element.last_name));
         employeeIds = res;
     })
-
-    // // query to retrieve managers
-    // db.query(`SELECT * FROM employees`, (err, res) => {
-    //     if(err) console.log(err)
-    //     res.forEach(element => {
-    //         if(element.firstName) {
-    //             managers.push(element.firstName + ' ' + element.last_name)
-    //         }
-    //     })
-    // })
-    
 }
 
 // initialization function to kick off the command line application
 const init = () => {
     runQueries();
-
     // storing message and choices as variables here
     let message = 'What would you like to do?';
     let choices = [
@@ -105,7 +93,7 @@ const init = () => {
                 updateEmployee();
                 break;
             case "Exit":
-                console.log("Application closing, thank you for using the Employee Database.");
+                console.log("Application closing, thank you for using the Employee Database. Press Ctrl + C to get back to your terminal.");
                 break;
         }
     });
@@ -225,7 +213,6 @@ function addRole () {
                 }
             })
             sql = `INSERT INTO roles VALUES (DEFAULT, '${data.jobTitle}', ${data.salary}, '${departmentId}');`
-            console.log(sql)
             db.query(sql, (err, res) => {
                 if(err) console.log(err)
             });
@@ -291,7 +278,6 @@ function addEmployee () {
                 return;
             }
         })
-        console.log(managerId)
         sql = `INSERT INTO employees VALUES (DEFAULT, '${data.firstName}', '${data.lastName}', '${roleId}', '${managerId}');`
         db.query(sql, (err, res) => {
             if(err) console.log(err)
@@ -343,5 +329,4 @@ function updateEmployee () {
         init();
     })
 }
-
 init();
