@@ -271,6 +271,8 @@ function addEmployee () {
 }
 
 function updateEmployee () {
+    let employeeIdUpdate;
+
     return inquirer.prompt([
         {
             type: 'list',
@@ -286,7 +288,6 @@ function updateEmployee () {
         },
     ])
     .then(data => {
-        // console.log(data)
         roleInfo.forEach(element => {
             switch (data.newRole) {
                 case element.job_title:
@@ -297,18 +298,23 @@ function updateEmployee () {
         })
 
         employeeIds.forEach(element => {
-            // console.log(data.employeeUpdate)
             let caseString = element.first_name + ' ' + element.last_name;
             switch (data.employeeUpdate) {
                 case (caseString):
-                    console.log(caseString);
+                    employeeIdUpdate = element.employee_id;
                     break;
             }
         })
-        // console.log(employeeIds)
         sql = `UPDATE employees 
                SET job_title = '${data.newRole}', department_name = '${departmentName}', salary = ${salaryAmount}
-               WHERE `
+               WHERE employee_id = ${employeeIdUpdate}
+               `
+        console.log(sql)
+        db.query(sql, (err, res) => {
+            if(err) console.log(err)
+        });
+        console.log(`${data.employeeUpdate} role updated to ${data.newRole} and added to the database.`)
+        init();
     })
 }
 
